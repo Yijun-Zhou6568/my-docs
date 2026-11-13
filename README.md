@@ -34,8 +34,12 @@ python -m pip install -r requirements.txt
 python -m mkdocs serve
 ```
 
-浏览器打开 http://127.0.0.1:8000/ ，检查四页导航、表格与代码块，结束后 Ctrl + C 停止。
+浏览器打开终端显示的地址，通常为 http://127.0.0.1:8000/my-docs/ ，检查四页导航、表格与代码块，结束后 Ctrl + C 停止。
 
 ## 发布方式
 
 修改 `docs/` 下的 Markdown 或相关配置后，推送到 `main` 分支即可。GitHub Actions 会自动执行安装、构建（`mkdocs build --strict`）和部署，无需手动上传网站文件，也不需要 `gh-pages` 分支。
+
+## 自动更新验证
+
+第二次文档推送已验证成功：[运行记录](https://github.com/Yijun-Zhou6568/my-docs/actions/runs/43345042522)。首页的“自动部署验证”一节与提交 e43cfb5 对应。

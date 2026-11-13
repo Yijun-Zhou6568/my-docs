@@ -3,110 +3,142 @@
 ## 1. 基本信息
 
 - GitHub 登录名：Yijun-Zhou6568
-- 个人仓库地址：https://github.com/Yijun-Zhou6568/my-docs
-- 最终网站地址：https://Yijun-Zhou6568.github.io/my-docs/
+- 个人仓库：[Yijun-Zhou6568/my-docs](https://github.com/Yijun-Zhou6568/my-docs)
+- 最终网站：[我的技术文档](https://yijun-zhou6568.github.io/my-docs/)
+- 实践时间：2026 年 11 月 9 日至 11 月 13 日。
+- 发布方式：GitHub 官方 Pages Actions，构建产物直接上传发布。
+
+本次实践将四页 Markdown 文档发布为公开网站，并用第二次文档提交验证自动更新。源码、提交记录、运行结果与页面文字可以相互核对。
 
 ## 2. 实践过程与关键截图
 
 ### 2.1 仓库创建
 
-在 GitHub 网页右上角点击 `+` → New repository，Owner 选择本人账号，仓库名 `my-docs`，可见性选择 **Public**，不勾选初始化 README，创建后得到空仓库。之所以保持空仓库，是因为本地已经准备好了完整项目，先本地提交再推送可以避免远程初始提交与本地历史分叉。
+使用本人账号创建公开仓库 my-docs，将本地项目推送至 main 分支。仓库保存源码、配置和报告，生成的网站及本地虚拟环境由 .gitignore 排除。
 
-![个人公开仓库](images/01-repository.png)
+![个人公开仓库：所有者、仓库名、Public 标识及 main 分支](images/01-repository.png)
 
-结果：仓库首页可以看清所有者 `Yijun-Zhou6568`、仓库名 `my-docs` 和 Public 标识，默认分支为 `main`。
+结果：仓库所有者为 Yijun-Zhou6568，可见性为 Public，默认分支为 main，教师可直接核对文件、提交和运行记录。
 
 ### 2.2 项目结构与 MkDocs 配置
 
-![项目结构与 mkdocs.yml](images/02-structure.png)
+![实际仓库文件树与 mkdocs.yml 配置](images/02-structure.png)
 
-三个目录的分工：
+- docs/ 保存首页、关于、使用指南和 API 参考四页 Markdown，是网站的内容源文件。
+- mkdocs.yml 配置站点名、Material 中文主题、仓库地址、网站地址和导航。nav 的路径相对 docs/，应写 index.md，而不是 docs/index.md。
+- site/ 保存构建生成的 HTML、CSS 和 JavaScript，下一次构建会覆盖，不作为手工维护的源码。
+- report/ 单独保存说明和截图，不参与网站导航。
+- .github/workflows/deploy.yml 定义安装、构建、上传产物和部署步骤。
 
-- `docs/` 是网站源码，四页 Markdown 都在这里，`nav` 中的路径相对它书写，因此写成 `index.md` 而不是 `docs/index.md`。
-- `mkdocs.yml` 决定站点名称、主题与导航顺序，`site_url` 必须与最终 Pages 地址一致，否则站内链接和资源路径会出错。
-- `site/` 是 `mkdocs build` 生成的构建产物，属于一次性输出，不手工编写也不提交，已在 `.gitignore` 中忽略。
+截图展示实际文件树与配置。四个 nav 条目均有对应文档；.gitignore 忽略 site/、.venv/ 和 __pycache__/。
 
-### 2.3 本地构建或预览
+### 2.3 本地构建与预览
 
-```text
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+本机已有的虚拟环境使用 Python 3.13，云端按课程配置使用 Python 3.12。两处严格构建均成功。直接调用虚拟环境解释器，可以避免激活脚本受 PowerShell 执行策略影响。
+
+~~~powershell
+# 在已经安装 requirements.txt 依赖的 Python 环境中执行
 python -m mkdocs build --strict
-python -m mkdocs serve
-```
+python -m mkdocs serve -a 127.0.0.1:8026
+~~~
 
-![本地构建成功](images/03-local-build.png)
+本地实际预览地址为 http://127.0.0.1:8026/my-docs/ ，以终端输出为准。严格构建输出 Documentation built，退出码为 0。主题另有生命周期提示，但未导致严格构建失败。
 
-`build --strict` 没有报出警告。本地预览时我检查了四项：导航栏四个条目都能跳转、表格边框与对齐正常、代码块高亮与 JSON 格式正常、页面底部的“返回”链接可点击。
+![本地首页预览](images/03-local-preview.png)
+
+![本地 API 页：表格和 JSON 示例](images/03-local-api.png)
+
+四页均返回 200。首页、关于页有表格，使用指南、API 页有代码块，导航和页面间链接均有对应目标。
 
 ### 2.4 Pages 设置
 
-进入 Settings → Pages → Build and deployment → Source，选择 **GitHub Actions**。这一项是关键：发布来源一旦是分支，官方的 `deploy-pages` 动作会因为环境配置冲突而失败。
+进入 Settings → Pages，确认 Build and deployment 的 Source 为 GitHub Actions。设置页显示 Your site is live at 和实际网站地址。
 
-![Pages 发布来源](images/04-pages-source.png)
+![Pages 设置：Source 为 GitHub Actions](images/04-pages-source.png)
 
-Actions 权限保持默认即可，工作流里已经单独声明了 `pages: write` 与 `id-token: write`，无需把仓库默认权限改成读写，也不需要勾选允许 Actions 创建和批准 PR。
+Pages API 返回 build_type 为 workflow，与截图一致。部署任务单独授予 pages: write、id-token: write，源码读取权限为 contents: read；不需要允许 Actions 创建或批准 PR，也不需要在文件中填写个人令牌。
 
-### 2.5 Actions 首次构建和部署
+### 2.5 首次构建和部署
 
-推送后工作流自动触发，`build` 与 `deploy` 两个任务均为绿色。
+首次源码提交为 [213d805](https://github.com/Yijun-Zhou6568/my-docs/commit/213d805a41bba4c8e297ff9a30ad1050e4ef382b)，运行创建于 2026 年 11 月 9 日。目前详情页显示该运行的成功重跑结果，不能由此声称首次尝试从未重跑。
 
-![首次构建与部署成功](images/05-actions-success.png)
+- [首次源码对应的成功运行](https://github.com/Yijun-Zhou6568/my-docs/actions/runs/42590596293)
+- build、deploy 均为 success，依赖安装、严格构建、上传产物和发布均成功。
 
-### 2.6 网站访问与四页导航检查
+![首次源码对应的成功运行：build 与 deploy 均成功](images/05-actions-success.png)
 
-![公开网站首页](images/06-website.png)
+build 生成 site/ 并上传 github-pages artifact；deploy 通过 needs: build 等待构建成功后发布产物。分开两个任务，可以判断失败发生在构建阶段还是发布阶段。
 
-四页均已逐一打开确认：首页、关于、使用指南、API 参考，导航顺序与 `nav` 一致，页面间链接可点击，表格和代码块显示正常。地址栏中保留了完整路径 `/my-docs/`，这是项目站点必须带的仓库路径。
+### 2.6 公开网站与四页检查
+
+![公开首页，保留浏览器地址栏](images/06-website-browser.png)
+
+![公开 API 页的表格与代码](images/06-website-api.png)
+
+2026 年 11 月 13 日通过浏览器逐页访问，结果如下。项目站点首页和子页均保留 /my-docs/ 路径。
+
+| 页面 | 实际地址 | 检查结果 |
+| --- | --- | --- |
+| 首页 | https://yijun-zhou6568.github.io/my-docs/ | 200；作者、导航入口、表格及验证文字存在 |
+| 关于 | https://yijun-zhou6568.github.io/my-docs/about/ | 200；项目目标、工具表和流程说明存在 |
+| 使用指南 | https://yijun-zhou6568.github.io/my-docs/guide/ | 200；步骤、命令块和常见问题表存在 |
+| API 参考 | https://yijun-zhou6568.github.io/my-docs/api/ | 200；参数表、JSON、字段说明和错误码存在 |
+
+浏览器记录过主题查询 GitHub 仓库信息的外部 API 返回 403；后续查询 releases/latest 返回 404，因为本仓库未创建 Release。这是右上角仓库统计的附加请求，不是四个文档页面或本站资源返回 404，因此不能写成“所有网络请求都没有错误”。
 
 ### 2.7 第二次推送与自动更新验证
 
-在 `docs/index.md` 末尾新增了一句可辨认的文字，提交后推送，未点击手动部署，工作流由这次 push 自动触发并成功。
+在 docs/index.md 增加“自动部署验证”一节，加入以下原文：
 
-- 对应提交：`<填写 commit 短哈希，如 a1b2c3d>`
-- 对应 Actions 运行链接：`<填写本次运行记录地址>`
+> 自动部署验证：2026 年 11 月 13 日，我在第二次推送中加入这句话，用它核对 GitHub Actions 是否自动构建并更新网站。
 
-![第二次推送触发的运行](images/07-second-push.png)
+- 对应提交：[e43cfb5：验证文档修改后自动更新网站](https://github.com/Yijun-Zhou6568/my-docs/commit/e43cfb54547288bfb29520af0690556b7ecea765)
+- 对应运行：[第二次 push 自动部署成功](https://github.com/Yijun-Zhou6568/my-docs/actions/runs/43345042522)
+- 触发时间：2026 年 11 月 13 日 09:27（北京时间）。
+- 事件：push。详情页显示 Triggered via push，未使用 Run workflow 手动触发。
+- 结果：build、deploy 均成功，总时长约 32 秒。
 
-刷新网站后新文字出现，说明“推送 → 构建 → 部署 → 更新”整条链路可用。
+![第二次运行：由 push 触发、提交 e43cfb5、两个任务成功](images/07-second-push.png)
+
+![公开网站出现对应文字，保留地址栏](images/08-updated-website.png)
+
+提交中有新增文字，Actions 使用同一个提交构建，公开页面也显示相同内容，证明“修改文档 → 推送 → 自动构建 → 自动部署 → 页面更新”的完整流程可用。
 
 ## 3. 问题与解决
 
-### 3.1 问题记录
-
-| 现象 | 关键日志或报错 | 原因 | 解决操作 |
+| 实际现象 | 关键记录 | 原因与处理 | 结果 |
 | --- | --- | --- | --- |
-| （按实际情况填写；若未遇到错误，保留表格并写“本次运行未出现报错，核对过的日志见下方 3.2”） | | | |
+| Pages 直接连接超时，推送曾失败 | ERR_CONNECTION_TIMED_OUT；Failed to connect to github.com port 443 | 当前网络直接连接不稳定；通过本机已有代理重试，未改动发布配置 | 网站返回 200，提交推送成功 |
+| 本地预览首次启动失败 | PermissionError: WinError 5，涉及 MkDocs 临时目录 | 当前运行环境限制临时目录访问；获得本机执行许可后重启预览 | 预览成功，四页返回 200 |
+| Actions 有提示但整体成功 | 部分动作的 Node.js 20 兼容提示；ubuntu-latest 迁移提示 | 检查注释与任务结论，保留课程的官方工作流 | build、deploy 均成功 |
+| 主题附加仓库请求返回 403 | GitHub API 仓库及 releases/latest 查询 | 属于外部统计信息请求，与文档构建、托管分别判断 | 文档、表格和代码均可访问 |
 
-### 3.2 未遇报错时核对过的内容
-
-- `build` 任务中 `Install dependencies` 步骤无 `ERROR`，`Build documentation` 步骤输出 `INFO - Documentation built`，`--strict` 未中断。
-- `deploy` 任务中 `Deploy to GitHub Pages` 步骤输出发布成功，并给出 `page_url`。
-- 网站访问时浏览器控制台无 404 资源请求，说明资源路径与 `site_url` 匹配。
+核对了第二次运行的 Checkout source、Set up Python、Configure Pages、Install dependencies、Build documentation、Upload site artifact 及 Deploy to GitHub Pages，均为 success。通过任务结果判断部署状态，比只看一条提示更可靠。
 
 ## 4. 原理理解
 
-**1. `docs/` 和 `site/` 各保存什么？为什么不用手工修改 `site/`？**
+### 4.1 docs/ 和 site/ 各保存什么？为什么不用手工修改 site/？
 
-`docs/` 保存人写的 Markdown 源码，是可维护、可版本管理的唯一源头；`site/` 是 `mkdocs build` 依据源码和配置生成的 HTML/CSS/JS 产物。产物由机器生成，手工修改会在下一次构建时被覆盖，也无法追溯改动，因此产物只用于发布，不进入版本库。
+docs/ 保存需要维护、提交的 Markdown。site/ 是根据源码、主题和配置生成的静态文件。修改产物会被下次构建覆盖，因此应修改 docs/ 后重新构建，site/ 不提交到 main。
 
-**2. 本次工作流在什么情况下自动运行？**
+### 4.2 本次工作流在什么情况下自动运行？
 
-推送到 `main` 分支且改动涉及 `docs/**`、`mkdocs.yml`、`requirements.txt` 或 `.github/workflows/deploy.yml` 时自动运行；另外配置了 `workflow_dispatch`，可以在 Actions 页面手动触发，用于首次排错和重试。
+推送到 main，且涉及 docs/**、mkdocs.yml、requirements.txt 或 .github/workflows/deploy.yml 时自动运行。workflow_dispatch 额外提供手动入口，适合排错或重试，与第二次验证所用的 push 事件不同。
 
-**3. `build` 与 `deploy` 两个任务有什么区别？**
+### 4.3 build 与 deploy 两个任务有什么区别？
 
-`build` 负责取源码、配置 Python 3.12、安装依赖、执行严格构建，并把 `site/` 打包成 artifact 上传；`deploy` 通过 `needs: build` 在构建成功后才启动，把 artifact 发布到 `github-pages` 环境并回写网站地址。前者只读代码，后者才真正写入 Pages，因此权限分开授予。
+build 读取源码、准备 Python 3.12、安装依赖、严格构建并上传 site/；deploy 通过 needs: build 等待构建成功，再以 pages: write、id-token: write 权限发布。github-pages 是记录部署状态和网站地址的环境。concurrency 的 pages 分组控制部署并发，避免多个发布互相干扰。
 
-**4. 只修改 `report/README.md` 会触发部署吗？为什么？**
+### 4.4 只修改 report/README.md 会触发部署吗？为什么？
 
-不会。工作流的 `paths` 只监听文档与配置路径，`report/` 不在列表内；报告属于过程记录，不影响网站内容，也就不需要重新构建发布。
+不会。push.paths 不包含 report/ 或根 README.md，报告更新不改变网站源码，无需再次构建网站。
 
-**5. 本次方案为何无需创建 `gh-pages` 分支？**
+### 4.5 本次方案为何无需创建 gh-pages 分支？
 
-官方 Pages Actions 方案把构建产物作为 artifact 直接交给 `deploy-pages` 发布，由 Pages 服务托管，产物不落在仓库分支上。这样省去维护 `gh-pages` 分支、以及在分支发布模式下所需的额外权限配置，仓库里只保留源码一条主线。
+upload-pages-artifact 上传静态文件，deploy-pages 直接将产物交给 Pages 托管，不需要写入另一条 Git 分支，因此 main 只保存源码即可。
 
-## 5. 提交信息
+## 5. 实践体会与提交状态
 
-- 教师仓库 Issue 地址：`<填写本人提交的 Issue 链接>`
+这次需要分清源码是否推送、工作流是否成功、网页是否显示相应版本。它们分别由提交记录、任务状态和公开页面证明，单看其中一个不能代替另外两个。网络超时也不能直接判断部署失败，应结合设置、运行和网页响应定位。
+
+个人仓库、网站、自动更新验证和本报告已准备完成。教师仓库 Issue 由本人审阅后亲自提交，当前报告不声称已经交作业。提交时填写本报告地址、源码地址、网站地址和第二次运行地址；提交后可在本节补充教师 Issue 链接。
