@@ -8,7 +8,7 @@
 - 实践时间：2026 年 11 月 9 日至 11 月 13 日。
 - 发布方式：GitHub 官方 Pages Actions，构建产物直接上传发布。
 
-本次实践将四页 Markdown 文档发布为公开网站，并用第二次文档提交验证自动更新。源码、提交记录、运行结果与页面文字可以相互核对。
+本次实验使用 MkDocs Material 制作四页文档，通过 GitHub Actions 构建并部署到 GitHub Pages。在完成首次发布后，再修改首页并推送，检查网站能否自动更新。
 
 ## 2. 实践过程与关键截图
 
@@ -18,7 +18,7 @@
 
 ![个人公开仓库：所有者、仓库名、Public 标识及 main 分支](images/01-repository.png)
 
-结果：仓库所有者为 Yijun-Zhou6568，可见性为 Public，默认分支为 main，教师可直接核对文件、提交和运行记录。
+仓库创建完成后，首页显示 Public 标识，默认分支为 main，项目文件已上传。
 
 ### 2.2 项目结构与 MkDocs 配置
 
@@ -34,7 +34,7 @@
 
 ### 2.3 本地构建与预览
 
-本机已有的虚拟环境使用 Python 3.13，云端按课程配置使用 Python 3.12。两处严格构建均成功。直接调用虚拟环境解释器，可以避免激活脚本受 PowerShell 执行策略影响。
+本地使用已安装依赖的 Python 3.13 虚拟环境进行预览，Actions 中配置 Python 3.12。先执行严格构建检查文档，再启动预览服务。
 
 ~~~powershell
 # 在已经安装 requirements.txt 依赖的 Python 环境中执行
@@ -42,7 +42,7 @@ python -m mkdocs build --strict
 python -m mkdocs serve -a 127.0.0.1:8026
 ~~~
 
-本地实际预览地址为 http://127.0.0.1:8026/my-docs/ ，以终端输出为准。严格构建输出 Documentation built，退出码为 0。主题另有生命周期提示，但未导致严格构建失败。
+本地预览地址为 http://127.0.0.1:8026/my-docs/ 。严格构建输出 Documentation built，程序正常结束。
 
 ![本地首页预览](images/03-local-preview.png)
 
@@ -56,11 +56,11 @@ python -m mkdocs serve -a 127.0.0.1:8026
 
 ![Pages 设置：Source 为 GitHub Actions](images/04-pages-source.png)
 
-Pages API 返回 build_type 为 workflow，与截图一致。部署任务单独授予 pages: write、id-token: write，源码读取权限为 contents: read；不需要允许 Actions 创建或批准 PR，也不需要在文件中填写个人令牌。
+工作流中，源码读取使用 contents: read 权限，部署任务使用 pages: write 和 id-token: write 权限。这些权限由工作流声明，不需要另外填写个人访问令牌。
 
 ### 2.5 首次构建和部署
 
-首次源码提交为 [213d805](https://github.com/Yijun-Zhou6568/my-docs/commit/213d805a41bba4c8e297ff9a30ad1050e4ef382b)，运行创建于 2026 年 11 月 9 日。目前详情页显示该运行的成功重跑结果，不能由此声称首次尝试从未重跑。
+首次源码提交为 [213d805](https://github.com/Yijun-Zhou6568/my-docs/commit/213d805a41bba4c8e297ff9a30ad1050e4ef382b)，对应运行创建于 2026 年 11 月 9 日。该运行经过重跑后成功，截图为重跑后的结果。
 
 - [首次源码对应的成功运行](https://github.com/Yijun-Zhou6568/my-docs/actions/runs/42590596293)
 - build、deploy 均为 success，依赖安装、严格构建、上传产物和发布均成功。
@@ -84,7 +84,7 @@ build 生成 site/ 并上传 github-pages artifact；deploy 通过 needs: build 
 | 使用指南 | https://yijun-zhou6568.github.io/my-docs/guide/ | 200；步骤、命令块和常见问题表存在 |
 | API 参考 | https://yijun-zhou6568.github.io/my-docs/api/ | 200；参数表、JSON、字段说明和错误码存在 |
 
-浏览器记录过主题查询 GitHub 仓库信息的外部 API 返回 403；后续查询 releases/latest 返回 404，因为本仓库未创建 Release。这是右上角仓库统计的附加请求，不是四个文档页面或本站资源返回 404，因此不能写成“所有网络请求都没有错误”。
+检查页面请求时，发现主题获取 GitHub 仓库信息的接口曾返回 403，查询最新 Release 的接口返回 404。本仓库没有创建 Release，这些请求不影响文档正文、导航和代码块显示。
 
 ### 2.7 第二次推送与自动更新验证
 
@@ -102,18 +102,17 @@ build 生成 site/ 并上传 github-pages artifact；deploy 通过 needs: build 
 
 ![公开网站出现对应文字，保留地址栏](images/08-updated-website.png)
 
-提交中有新增文字，Actions 使用同一个提交构建，公开页面也显示相同内容，证明“修改文档 → 推送 → 自动构建 → 自动部署 → 页面更新”的完整流程可用。
+部署成功后刷新首页，新增文字正常显示，与提交 e43cfb5 中的内容一致，自动更新验证完成。
 
 ## 3. 问题与解决
 
 | 实际现象 | 关键记录 | 原因与处理 | 结果 |
 | --- | --- | --- | --- |
 | Pages 直接连接超时，推送曾失败 | ERR_CONNECTION_TIMED_OUT；Failed to connect to github.com port 443 | 当前网络直接连接不稳定；通过本机已有代理重试，未改动发布配置 | 网站返回 200，提交推送成功 |
-| 本地预览首次启动失败 | PermissionError: WinError 5，涉及 MkDocs 临时目录 | 当前运行环境限制临时目录访问；获得本机执行许可后重启预览 | 预览成功，四页返回 200 |
 | Actions 有提示但整体成功 | 部分动作的 Node.js 20 兼容提示；ubuntu-latest 迁移提示 | 检查注释与任务结论，保留课程的官方工作流 | build、deploy 均成功 |
 | 主题附加仓库请求返回 403 | GitHub API 仓库及 releases/latest 查询 | 属于外部统计信息请求，与文档构建、托管分别判断 | 文档、表格和代码均可访问 |
 
-核对了第二次运行的 Checkout source、Set up Python、Configure Pages、Install dependencies、Build documentation、Upload site artifact 及 Deploy to GitHub Pages，均为 success。通过任务结果判断部署状态，比只看一条提示更可靠。
+第二次运行中，Checkout source、Set up Python、Configure Pages、Install dependencies、Build documentation、Upload site artifact 和 Deploy to GitHub Pages 均执行成功。
 
 ## 4. 原理理解
 
@@ -137,8 +136,8 @@ build 读取源码、准备 Python 3.12、安装依赖、严格构建并上传 s
 
 upload-pages-artifact 上传静态文件，deploy-pages 直接将产物交给 Pages 托管，不需要写入另一条 Git 分支，因此 main 只保存源码即可。
 
-## 5. 实践体会与提交状态
+## 5. 实验总结
 
-这次需要分清源码是否推送、工作流是否成功、网页是否显示相应版本。它们分别由提交记录、任务状态和公开页面证明，单看其中一个不能代替另外两个。网络超时也不能直接判断部署失败，应结合设置、运行和网页响应定位。
+通过本次实验，熟悉了从 Markdown 文档到公开网站的发布过程。文档内容放在 docs/ 中维护，GitHub Actions 负责生成和发布网站，修改内容后不需要再手动上传 HTML 文件。
 
-个人仓库、网站、自动更新验证和本报告已准备完成。教师仓库 Issue 由本人审阅后亲自提交，当前报告不声称已经交作业。提交时填写本报告地址、源码地址、网站地址和第二次运行地址；提交后可在本节补充教师 Issue 链接。
+排查问题时，需要把本地构建、云端部署和网络访问分开检查。例如，网站连接超时可能是网络问题，应先查看 Actions 是否成功，再检查网页访问情况。第二次推送后，运行记录和首页内容都发生了对应变化，说明自动部署配置已经生效。
