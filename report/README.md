@@ -60,12 +60,12 @@ python -m mkdocs serve -a 127.0.0.1:8026
 
 ### 2.5 首次构建和部署
 
-首次源码提交为 [213d805](https://github.com/Yijun-Zhou6568/my-docs/commit/213d805a41bba4c8e297ff9a30ad1050e4ef382b)，对应运行创建于 2026 年 11 月 9 日。该运行经过重跑后成功，截图为重跑后的结果。
+11 月 9 日，将项目推送到 GitHub 后，在 Actions 中查看部署情况。重新运行工作流后，build 和 deploy 都显示成功，Pages 中也出现了网站地址。
 
-- [首次源码对应的成功运行](https://github.com/Yijun-Zhou6568/my-docs/actions/runs/42590596293)
-- build、deploy 均为 success，依赖安装、严格构建、上传产物和发布均成功。
+- 提交记录：[213d805](https://github.com/Yijun-Zhou6568/my-docs/commit/213d805a41bba4c8e297ff9a30ad1050e4ef382b)
+- [Actions 运行记录](https://github.com/Yijun-Zhou6568/my-docs/actions/runs/42590596293)
 
-![首次源码对应的成功运行：build 与 deploy 均成功](images/05-actions-success.png)
+![首次部署成功](images/05-actions-success.png)
 
 build 生成 site/ 并上传 github-pages artifact；deploy 通过 needs: build 等待构建成功后发布产物。分开两个任务，可以判断失败发生在构建阶段还是发布阶段。
 
@@ -88,21 +88,19 @@ build 生成 site/ 并上传 github-pages artifact；deploy 通过 needs: build 
 
 ### 2.7 第二次推送与自动更新验证
 
-在 docs/index.md 增加“自动部署验证”一节，加入以下原文：
+第一次发布成功后，还需要试一下修改文档能否自动更新到网站。为此，在 docs/index.md 末尾补充了一段测试文字，提交并推送到 main 分支。
 
-> 自动部署验证：2026 年 11 月 13 日，我在第二次推送中加入这句话，用它核对 GitHub Actions 是否自动构建并更新网站。
+这次没有手动运行工作流。推送后，Actions 中出现了新的运行记录，页面显示 Triggered via push，说明是这次提交触发了部署。等待 build 和 deploy 完成后刷新网站，首页显示了刚增加的内容。
 
 - 对应提交：[e43cfb5：验证文档修改后自动更新网站](https://github.com/Yijun-Zhou6568/my-docs/commit/e43cfb54547288bfb29520af0690556b7ecea765)
-- 对应运行：[第二次 push 自动部署成功](https://github.com/Yijun-Zhou6568/my-docs/actions/runs/43345042522)
-- 触发时间：2026 年 11 月 13 日 09:27（北京时间）。
-- 事件：push。详情页显示 Triggered via push，未使用 Run workflow 手动触发。
-- 结果：build、deploy 均成功，总时长约 32 秒。
+- 运行记录：[第二次自动部署](https://github.com/Yijun-Zhou6568/my-docs/actions/runs/43345042522)
+- 运行时间：2026 年 11 月 13 日 09:27，总耗时约 32 秒。
 
-![第二次运行：由 push 触发、提交 e43cfb5、两个任务成功](images/07-second-push.png)
+![第二次推送后的 Actions 运行结果](images/07-second-push.png)
 
-![公开网站出现对应文字，保留地址栏](images/08-updated-website.png)
+![刷新后，首页显示新增内容](images/08-updated-website.png)
 
-部署成功后刷新首页，新增文字正常显示，与提交 e43cfb5 中的内容一致，自动更新验证完成。
+这次修改后没有手动上传网页文件，网站也完成了更新，说明以后可以直接通过修改 Markdown、提交和推送来维护网站。
 
 ## 3. 问题与解决
 
