@@ -1,0 +1,16 @@
+{
+  "source": "https://github.com/anthropics/skills",
+  "commit": "2c5958ecac7cee2b583967a2c4981d0f4a75c579",
+  "sourceArchiveSHA256": "e5b0c67dbfae471c013d0e03abe66db20ca70cc0c79ab6154a386c8b026e5195",
+  "installationDirectory": ".pi/skills/pptx",
+  "installedFiles": 56,
+  "matchingFiles": 56,
+  "missingFiles": [],
+  "extraFiles": [],
+  "mismatchedFiles": [],
+  "result": "PASS",
+  "installation": "Pi bash tool extracted the complete Skill from a source archive",
+  "sourceVerification": "Pi downloaded the official archive and compared installed files",
+  "restartDiscovery": "verified",
+  "explicitInvocation": "/skill:pptx verified"
+}

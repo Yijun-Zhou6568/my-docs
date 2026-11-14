@@ -1,0 +1,15 @@
+2026-11-13
+Working directory: pi-test
+Command: pi install npm:pi-web-access@0.47.0 -l --approve
+Captured output:
+Installing npm:pi-web-access@0.47.0...
+added 211 packages in 32s
+Installed npm:pi-web-access@0.47.0
+
+Separate interactive restart verified:
+[Extensions]
+  project
+    npm:pi-web-access@0.47.0
+      dist
+
+No models available.

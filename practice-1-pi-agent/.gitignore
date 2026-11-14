@@ -1,0 +1,14 @@
+# Credentials and local caches
+auth.json
+**/auth.json
+.env
+.env.*
+!.env.example
+node_modules/
+.pi/npm/
+.pi/git/
+.pi/cache/
+.pi/sessions/
+__pycache__/
+*.pyc
+logs/downloads/

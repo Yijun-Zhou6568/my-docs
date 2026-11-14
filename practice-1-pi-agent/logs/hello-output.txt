@@ -1,0 +1,2 @@
+Command: python hello.py
+Output: 5
