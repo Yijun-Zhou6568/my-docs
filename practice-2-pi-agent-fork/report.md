@@ -43,7 +43,11 @@ fork 创建页（Owner 选择小组组织、仓库名保留 `pi-hunnu-2026`）�
 | 当前分支 | main |
 | commit（完整） | c3cc91632d0a1950fb122605b190233f2aa0006e |
 | 工作区状态 | 干净，无未提交改动 |
-| Node 版本 | v22.23.2（根 `package.json` 要求 `>=22.19.0`） |
+| Node 版本 | v24.14.1（根 `package.json` 要求 `>=22.19.0`） |
+
+clone 全过程的终端记录（含 `node -v`，可核对上表版本，以及 `git clone` 的实际输出）：
+
+![clone 过程](./images/clone-process.png)
 
 ### 3. 源码目录结构
 
@@ -183,6 +187,7 @@ flowchart TB
 | `images/github-fork-page.png` | fork 创建页（Owner 选小组组织） |
 | `images/github-org-repo.png` | 小组组织仓库首页 |
 | `images/s1-clone.png` | clone 与版本核验（S1） |
+| `images/clone-process.png` | clone 全过程终端记录（含 `node -v`） |
 | `images/src-tree.png` | 本地源码目录截图 |
 | `images/org-people.png` | 组织成员 |
 | `images/repo-access.png` | 仓库访问权限 |
