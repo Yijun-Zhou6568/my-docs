@@ -53,7 +53,7 @@ clone 全过程的终端记录（含 `node -v`，可核对上表版本，以及 
 
 ![源码目录](./images/src-tree.png)
 
-根 `package.json` 声明为私有 monorepo（`name: pi-monorepo`、`private: true`），由 npm workspaces 管理：`workspaces` 为 `packages/*`、`apps/*`，外加载荷示例目录 `packages/chord/test/examples/61-tutorial`、`packages/coding-agent/examples/extensions/{with-deps, custom-provider-anthropic, gondolin}`。本次构建涉及的 11 个模块全部位于 `packages/` 下。
+根 `package.json` 声明为私有 monorepo（`name: pi-monorepo`、`private: true`），由 npm workspaces 管理：`workspaces` 为 `packages/*`、`apps/*`，另含 3 个示例目录（`packages/chord/test/examples/61-tutorial`，以及 `packages/coding-agent/examples/extensions/` 下的 `with-deps`、`custom-provider-anthropic`、`gondolin`），这些示例不参与根 `build`。本次构建涉及的 11 个模块全部位于 `packages/` 下。
 
 ### 4. 组员与组织成员
 
@@ -110,8 +110,8 @@ telemetry → schema → chord → tui → codemode → mcp → ai → durable �
 ![模块层级与依赖关系](./images/deps-relation.png)
 
 - 图源文件：`docs/deps.mmd`（Mermaid；可直接导入 mermaid.live / draw.io 再编辑），矢量版为 `images/deps-relation.svg`，报告内引用的是 `images/deps-relation.png`。
-- **图例**：实线箭头 = 运行时直接依赖（取自各包 `dependencies`）；虚线箭头 = 开发依赖或可选依赖（取自 `devDependencies` / `optionalDependencies`）；箭头一律由**使用方**指向**被依赖方**。
-- **层级划分依据**：按"该包到叶子包的最长依赖深度"分层——L1 为不依赖任何内部包的叶子包；L2 只依赖 L1；L3 依赖 L1、L2；L4 为面向用户的应用/入口层（自身被依赖次数最少）。
+- **图例**：实线箭头 = 运行时直接依赖（取自各包 `dependencies`）；虚线箭头 = 开发依赖或可选依赖（取自 `devDependencies` / `optionalDependencies`）；箭头一律由**使用方**指向**被依赖方**。本次 11 个包之间的内部依赖全部是运行时依赖，不存在内部开发/可选依赖，因此图中没有虚线边。
+- **层级划分依据**：按"该包到叶子包的最长依赖深度"分层——L1 为不依赖任何内部包的叶子包；L2 只依赖 L1；L3 依赖 L1、L2；L4 为不再被任何内部包依赖的最上层（`env` 是远程执行环境实现，`coding-agent` 是命令行入口）。
 
 ```mermaid
 flowchart TB
@@ -159,7 +159,7 @@ flowchart TB
 
 ### 4. 三个问题
 
-**（1）根目录与子模块中的** `npm run build` **分别读取什么配置、执行什么工作？**
+**（1）** 根目录与子模块中的 `npm run build` 分别读取什么配置、执行什么工作？
 
 - **根目录**：入口是根 `package.json` 的 `scripts.build` / `scripts.build:offline`。它**不读任何** `tsconfig`，本质是一条用 `cd` + `&&` 串起来的 shell 调用链，按固定顺序在每个子包目录里执行一次 `npm run build`（`build:offline` 只把 `ai` 换成了 `build:offline`）。根目录本身**不产出构建物**，`dist/` 分散在各子包内；根 `tsconfig.json`（`noEmit: true`，用 `paths` 把各包名指向 `src/**`）只服务于 `npm run check` 的全仓类型检查，与 `build` 无关。
 - **子模块**：入口是 `packages/<模块>/package.json` 的 `scripts.build`。多数模块是 `tsc -p tsconfig.build.json`——读取本包的 `tsconfig.build.json`（`extends ../../tsconfig.base.json`，`outDir: ./dist`、`rootDir: ./src`、`include: src/**/*.ts`），把 `src/` 编译成 `dist/` 下的 `.js`、`.d.ts`、`.d.ts.map`、`.js.map`（base 中 `declaration`/`declarationMap`/`sourceMap` 为 true），产物路径由 `package.json` 的 `main`、`types` 和 `exports` 指回 `dist`。少数模块在此之上有额外步骤：`ai` 先 `generate-models` 生成并 `check:model-data` 校验模型目录，再在 `tsc` 之后复制 `src/providers/data`（JSON 不走编译器）；`coding-agent` 在 `tsc` 之后再执行"加可执行包装 + 拷贝主题/图片/HTML 模板"的 `copy-assets`，最后由 bundle 脚本打出单文件发布版。
@@ -173,10 +173,10 @@ flowchart TB
 
 取路径 `coding-agent → agent → ai → schema`（四跳三模块，全部来自 `dependencies`；`agent` 指包 `@earendil-works/pi-agent-core`）：
 
-- `coding-agent`**（**`@earendil-works/pi-coding-agent`**）**：最上层的用户入口，负责"把能力拼成一个能用的命令行工具"——提供 read/bash/edit/write 等内置工具与会话管理，依赖 `pi-agent-core` 拿 agent 循环、依赖 `pi-ai` 拿模型、依赖 `pi-tui` 渲染终端界面、依赖 `pi-mcp` 接外部工具、依赖 `pi-codemode` 执行模型写的脚本；构建上也最特殊（可执行包装 + 资源拷贝 + bundle）。
-- `agent`**（**`@earendil-works/pi-agent-core`**）**：中间的 agent 执行核心，负责"一次任务怎么跑"——状态管理、工具执行、事件流与传输层抽象、附件处理，把模型的返回变成可执行的动作序列；它不关心界面与进程形态，也不直接实现模型协议，只向上暴露一套与传输无关的 API。
-- `ai`**（**`@earendil-works/pi-ai`**）**：模型访问层，负责"怎么和各家大模型说话"——统一多 provider 的请求/响应、自动鉴权、token 与成本统计、上下文持久化与会话中途切换模型；它把各厂商差异收敛成一套接口供 `agent` 调用。
-- `schema`**（**`@earendil-works/pi-schema`**）**：最底层的校验原语，负责"参数长什么样才算合法"——提供 JSON Schema 构建器与无 `eval` 的高性能校验器，`ai`/`agent` 用它约束工具入参和结构化输出，因此处在链路末端、被依赖但不依赖任何内部包。
+- `coding-agent`（`@earendil-works/pi-coding-agent`）：最上层的用户入口，负责"把能力拼成一个能用的命令行工具"——提供 read/bash/edit/write 等内置工具与会话管理，依赖 `pi-agent-core` 拿 agent 循环、依赖 `pi-ai` 拿模型、依赖 `pi-tui` 渲染终端界面、依赖 `pi-mcp` 接外部工具、依赖 `pi-codemode` 执行模型写的脚本；构建上也最特殊（可执行包装 + 资源拷贝 + bundle）。
+- `agent`（`@earendil-works/pi-agent-core`）：中间的 agent 执行核心，负责"一次任务怎么跑"——状态管理、工具执行、事件流与传输层抽象、附件处理，把模型的返回变成可执行的动作序列；它不关心界面与进程形态，也不直接实现模型协议，只向上暴露一套与传输无关的 API。
+- `ai`（`@earendil-works/pi-ai`）：模型访问层，负责"怎么和各家大模型说话"——统一多 provider 的请求/响应、自动鉴权、token 与成本统计、上下文持久化与会话中途切换模型；它把各厂商差异收敛成一套接口供 `agent` 调用。
+- `schema`（`@earendil-works/pi-schema`）：最底层的校验原语，负责"参数长什么样才算合法"——提供 JSON Schema 构建器与无 `eval` 的高性能校验器，`ai`/`agent` 用它约束工具入参和结构化输出，因此处在链路末端、被依赖但不依赖任何内部包。
 
 ---
 
