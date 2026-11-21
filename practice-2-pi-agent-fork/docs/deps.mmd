@@ -1,0 +1,43 @@
+%% pi monorepo 模块层级与内部依赖关系
+%% 箭头方向：使用方 --> 被依赖方（边来自各包 package.json 的 dependencies）
+%% 层级：按"到叶子包的最长依赖深度"划分，L1 无内部依赖
+
+flowchart TB
+  subgraph L1["L1 基础层（无内部依赖）"]
+    t["telemetry"]
+    s["schema"]
+    tu["tui"]
+    cm["codemode"]
+    mc["mcp"]
+  end
+  subgraph L2["L2 能力层（仅依赖 L1）"]
+    ai["ai"]
+    ch["chord"]
+  end
+  subgraph L3["L3 组合层（依赖 L1、L2）"]
+    ag["agent"]
+    du["durable"]
+  end
+  subgraph L4["L4 应用/入口层"]
+    ev["env"]
+    ca["coding-agent"]
+  end
+
+  ai --> s
+  ai --> t
+  ch --> s
+  ch --> t
+  ag --> ai
+  ag --> s
+  du --> ch
+  du --> ai
+  du --> cm
+  du --> s
+  du --> t
+  ev --> ch
+  ev --> du
+  ca --> ag
+  ca --> ai
+  ca --> cm
+  ca --> mc
+  ca --> tu
