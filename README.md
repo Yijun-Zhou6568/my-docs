@@ -11,17 +11,20 @@
 
 ```text
 my-docs/
-├── .github/workflows/deploy.yml   # 自动构建与部署工作流
-├── docs/                          # 网站源码（四页 Markdown）
+├── .github/workflows/deploy.yml         # 自动构建与部署工作流
+├── docs/                                # 网站源码（四页 Markdown）
 │   ├── index.md
 │   ├── about.md
 │   ├── guide.md
 │   └── api.md
-├── report/                        # 实验报告与过程截图
+├── report/                              # 开源软件实践项目2 报告与截图
 │   ├── README.md
 │   └── images/
-├── mkdocs.yml                     # 站点配置
-├── requirements.txt               # 依赖版本范围
+├── practice-1-pi-agent/                 # 系统分析与设计 实践课1：安装与基础使用
+├── practice-2-pi-agent-fork/            # 实践课2：组织建仓与源码分析
+├── practice-3-pi-agent-source-build/    # 实践课3：源码安装与编译
+├── mkdocs.yml                           # 站点配置
+├── requirements.txt                     # 依赖版本范围
 └── .gitignore
 ```
 
@@ -43,3 +46,15 @@ python -m mkdocs serve
 ## 自动更新验证
 
 第二次文档推送已验证成功：[运行记录](https://github.com/Yijun-Zhou6568/my-docs/actions/runs/43345042522)。首页的“自动部署验证”一节与提交 e43cfb5 对应。
+
+## 系统分析与设计实践课报告
+
+三次实践课的报告各自独立成目录，均放在仓库根目录，命名统一为 `practice-N-主题`。截图与报告同目录（实践课1 用建目录时的 `evidence/`，其余用 `images/`），报告内引用一律为相对路径，可单独打开阅读。
+
+| 实践课 | 主题 | 报告 |
+| --- | --- | --- |
+| 实践课1 | Pi Agent 安装与基础使用 | [practice-1-pi-agent/实践报告.md](practice-1-pi-agent/实践报告.md) |
+| 实践课2 | 组织建仓与源码分析 | [practice-2-pi-agent-fork/report.md](practice-2-pi-agent-fork/report.md) |
+| 实践课3 | Pi Agent 源码安装与编译 | [practice-3-pi-agent-source-build/report.md](practice-3-pi-agent-source-build/report.md) |
+
+> 目录位置自实践课1 起保持不变（`practice-1-pi-agent/`、`practice-2-pi-agent-fork/`），已提交的 Issue 链接继续有效。

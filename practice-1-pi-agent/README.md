@@ -11,7 +11,7 @@
 - assets/blue-square-7.png：200×200 像素的视觉测试原图。
 - evidence/：实验报告对应的 S1–S8 截图。
 - .pi/settings.json：项目插件配置。
-- .pi/skills/pptx/：PPT Skill 完整目录及原始许可证。
+- .pi/skills/pptx/：PPT Skill 目录，含 `SKILL.md`、原始许可证与 `scripts` 支持脚本。
 - logs/：代码运行结果、插件安装记录、Skill 文件清单和安装校验结果。
 
 PPT Skill 来源：[anthropics/skills](https://github.com/anthropics/skills/tree/2c5958ecac7cee2b583967a2c4981d0f4a75c579/skills/pptx)，源 commit 为 2c5958ecac7cee2b583967a2c4981d0f4a75c579。已由 Pi 实际安装完整目录，并完成官方源码逐文件校验、重启发现及显式调用。
